@@ -1,46 +1,28 @@
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 
 # =====================================
-# 1. Load Dataset
+# Dataset
 # =====================================
-df = pd.read_csv("titanic.csv")
+data = {
+    "Age": [22, 38, 26, 35, 35, 54, 2, 27, 14, 30],
+    "Pclass": [3, 1, 3, 1, 3, 1, 3, 3, 2, 2],
+    "Sex": [0, 1, 1, 1, 0, 0, 0, 1, 1, 1],  # Male=0, Female=1
+    "Survived": [0, 1, 1, 1, 0, 0, 0, 1, 1, 1]
+}
+
+df = pd.DataFrame(data)
 
 # =====================================
-# 2. Handle Missing Values
+# Features and Target
 # =====================================
-df["Age"] = df["Age"].fillna(df["Age"].median())
-df["Embarked"] = df["Embarked"].fillna(df["Embarked"].mode()[0])
-df["Fare"] = df["Fare"].fillna(df["Fare"].median())
-
-# =====================================
-# 3. Drop Unnecessary Columns
-# =====================================
-columns_to_drop = ["PassengerId", "Name", "Ticket", "Cabin"]
-
-for col in columns_to_drop:
-    if col in df.columns:
-        df.drop(col, axis=1, inplace=True)
-
-# =====================================
-# 4. Encode Categorical Variables
-# =====================================
-le = LabelEncoder()
-
-df["Sex"] = le.fit_transform(df["Sex"])
-df["Embarked"] = le.fit_transform(df["Embarked"])
-
-# =====================================
-# 5. Features and Target
-# =====================================
-X = df.drop("Survived", axis=1)
+X = df[["Age", "Pclass", "Sex"]]
 y = df["Survived"]
 
 # =====================================
-# 6. Train-Test Split
+# Train-Test Split
 # =====================================
 X_train, X_test, y_train, y_test = train_test_split(
     X,
@@ -50,23 +32,22 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 # =====================================
-# 7. Train Decision Tree Model
+# Decision Tree Model
 # =====================================
 model = DecisionTreeClassifier(
     criterion="gini",
-    max_depth=5,
     random_state=42
 )
 
 model.fit(X_train, y_train)
 
 # =====================================
-# 8. Predictions
+# Prediction
 # =====================================
 y_pred = model.predict(X_test)
 
 # =====================================
-# 9. Evaluation
+# Evaluation
 # =====================================
 print("Accuracy Score:")
 print(accuracy_score(y_test, y_pred))
@@ -78,12 +59,12 @@ print("\nClassification Report:")
 print(classification_report(y_test, y_pred))
 
 # =====================================
-# 10. Feature Importance
+# Results
 # =====================================
-importance = pd.DataFrame({
-    "Feature": X.columns,
-    "Importance": model.feature_importances_
+result = pd.DataFrame({
+    "Actual": y_test,
+    "Predicted": y_pred
 })
 
-print("\nFeature Importance:")
-print(importance.sort_values(by="Importance", ascending=False))
+print("\nPredictions:")
+print(result)
